@@ -5,11 +5,21 @@ const emailTxt = document.getElementById('email');
 const passwordTxt = document.getElementById('password');
 
 form.addEventListener('submit', (e) => {
-
-    if (!validate()) {
+    if (validate())
         e.preventDefault();
-    }
+});
 
+form.querySelectorAll('input').forEach((input) => {
+    input.addEventListener('input', () => {
+        valid(input);
+    });
+});
+
+emailTxt.addEventListener('invalid', (e) => {;
+    if (!isEmail(emailTxt.value.trim())) {
+        emailTxt.setAttribute('placeholder', 'name@host.tld');
+        alertError(emailTxt, 'Looks like this is not an email');
+    }
 });
 
 function validate() {
@@ -19,51 +29,45 @@ function validate() {
     let email = emailTxt.value.trim();
     let password = passwordTxt.value.trim();
 
-    let set = new Set()
-
-    if (firstname === "") {
-        alertError(firstnameTxt, "First Name cannot be empty");
-        set.add(1);
-    } else {
-        set.delete(1);
-        valid(firstnameTxt);
+    if (isEmpty(firstname)) {
+        alertError(firstnameTxt, 'First Name cannot be empty');
     }
 
-    if (lastname === "") {
-        alertError(lastnameTxt, "Last Name cannot be empty");
-        set.add(2);
-    } else {
-        set.delete(2);
-        valid(lastnameTxt);
+    if (isEmpty(lastname)) {
+        alertError(lastnameTxt, 'Last Name cannot be empty');
     }
 
-    if (email === "") {
-        alertError(emailTxt, "Email cannot be empty");
+    if (isEmpty(password)) {
+        alertError(passwordTxt, 'Password cannot be empty');
+    }
+
+    if (isEmpty(email)) {
+        alertError(emailTxt, 'Look like this is not an email');
         emailTxt.setAttribute('placeholder', 'name@host.tld');
-        set.add(3);
-    } else if (!isEmail(email)) {
-        alertError(emailTxt, "Looks like this is not an email");
-        set.add(3);
-    } else {
-        set.delete(3);
-        valid(emailTxt);
     }
 
-    if (password === "") {
-        alertError(passwordTxt, "Password cannot be empty");
-        set.add(4);
-    } else {
-        set.delete(4);
-        valid(password);
-    }
-
-    if (set.size == 0){
-        return true;
-    }else{
-        return false;
-    }
+    return hasErrors();
 }
 
+//checks if form has errors
+function hasErrors() {
+    let bool = false;
+    form.querySelectorAll('.input').forEach((div) => {
+        if (div.classList.contains('error')) {
+            console.log(div.classList)
+            bool = true;
+        }
+    })
+    return bool;
+}
+
+//checks input text
+function isEmpty(text) {
+    if (text === "") return true;
+    return false;
+}
+
+//check if email is valid
 function isEmail(email) {
     let emailformat = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -80,7 +84,7 @@ function alertError(ele, err_message) {
 }
 
 //element value is valid
-//remove alert
+//remove alert on element
 function valid(ele) {
     let parent = ele.parentElement;
     parent.classList.remove('error');
